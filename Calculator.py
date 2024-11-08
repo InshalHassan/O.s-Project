@@ -1,49 +1,86 @@
-# Simple Calculator App
+import tkinter as tk
+from tkinter import messagebox
+import math
 
-def add(x, y):
-    return x + y
+# Create the main window
+window = tk.Tk()
+window.title("Scientific Calculator")
+window.geometry("400x600")
 
-def subtract(x, y):
-    return x - y
+# Variable to store the expression entered by the user
+expression = ""
 
-def multiply(x, y):
-    return x * y
+# Function to update the expression when a button is clicked
+def button_click(value):
+    global expression
+    expression += str(value)
+    entry_var.set(expression)
 
-def divide(x, y):
-    if y == 0:
-        return "Error! Division by zero."
-    return x / y
+# Function to clear the input field
+def clear():
+    global expression
+    expression = ""
+    entry_var.set(expression)
 
-# Main program loop
-while True:
-    print("\nSimple Calculator")
-    print("1. Add")
-    print("2. Subtract")
-    print("3. Multiply")
-    print("4. Divide")
-    print("5. Exit")
+# Function to evaluate the expression
+def evaluate():
+    try:
+        global expression
+        result = str(eval(expression))
+        entry_var.set(result)
+        expression = result
+    except Exception as e:
+        messagebox.showerror("Error", "Invalid expression")
+        expression = ""
 
-    choice = input("Choose an operation (1/2/3/4/5): ")
+# Function to handle scientific functions
+def scientific_function(func):
+    global expression
+    try:
+        if func == "sin":
+            expression = str(math.sin(math.radians(float(expression))))
+        elif func == "cos":
+            expression = str(math.cos(math.radians(float(expression))))
+        elif func == "tan":
+            expression = str(math.tan(math.radians(float(expression))))
+        elif func == "sqrt":
+            expression = str(math.sqrt(float(expression)))
+        elif func == "log":
+            expression = str(math.log10(float(expression)))
+        entry_var.set(expression)
+    except Exception as e:
+        messagebox.showerror("Error", "Invalid input for scientific function")
+        expression = ""
 
-    if choice in ("1", "2", "3", "4"):
-        try:
-            num1 = float(input("Enter first number: "))
-            num2 = float(input("Enter second number: "))
+# Tkinter variable to hold the expression
+entry_var = tk.StringVar()
 
-            if choice == "1":
-                print("Result:", add(num1, num2))
-            elif choice == "2":
-                print("Result:", subtract(num1, num2))
-            elif choice == "3":
-                print("Result:", multiply(num1, num2))
-            elif choice == "4":
-                print("Result:", divide(num1, num2))
+# Entry widget to display the expression
+entry = tk.Entry(window, textvar=entry_var, font=("Arial", 20), bd=10, relief="sunken", justify="right")
+entry.grid(row=0, column=0, columnspan=4)
 
-        except ValueError:
-            print("Invalid input! Please enter numerical values.")
+# Button layout for the calculator
+buttons = [
+    ("7", 1, 0), ("8", 1, 1), ("9", 1, 2), ("/", 1, 3),
+    ("4", 2, 0), ("5", 2, 1), ("6", 2, 2), ("*", 2, 3),
+    ("1", 3, 0), ("2", 3, 1), ("3", 3, 2), ("-", 3, 3),
+    ("0", 4, 0), (".", 4, 1), ("=", 4, 2), ("+", 4, 3),
+    ("sin", 5, 0), ("cos", 5, 1), ("tan", 5, 2), ("sqrt", 5, 3),
+    ("log", 6, 0), ("(", 6, 1), (")", 6, 2), ("C", 6, 3)
+]
 
-    elif choice == "5":
-        print("Goodbye!")
-        break
+# Add buttons to the window
+for (text, row, col) in buttons:
+    if text == "=":
+        button = tk.Button(window, text=text, width=10, height=3, font=("Arial", 14), command=evaluate)
+    elif text == "C":
+        button = tk.Button(window, text=text, width=10, height=3, font=("Arial", 14), command=clear)
+    elif text in ["sin", "cos", "tan", "sqrt", "log"]:
+        button = tk.Button(window, text=text, width=10, height=3, font=("Arial", 14), command=lambda func=text: scientific_function(func))
     else:
-        print("Invalid option. Please try again.")
+        button = tk.Button(window, text=text, width=10, height=3, font=("Arial", 14), command=lambda value=text: button_click(value))
+    
+    button.grid(row=row, column=col)
+
+# Run the Tkinter event loop
+window.mainloop()
